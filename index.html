@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .problem {
+            margin-bottom: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .problem-header {
+            background: #3498db;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .problem-header:hover {
+            background: #2980b9;
+        }
+
+        .code-section {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            overflow-x: auto;
+            display: none;
+            position: relative;
+        }
+
+        .code-section.active {
+            display: block;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .copy-btn.copied {
+            background: #27ae60;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Computer Organization and Architecture Problems</h1>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(0)">1. Addition of two integers</div>
+            <div class="code-section" id="code0">
+                <button class="copy-btn" onclick="copyCode(0, event)">Copy</button>
+                <pre>section .bss
+    num1   resb 20
+    num2   resb 20
+    result resb 20
+
+section .data
+    msg1    db "Enter first number: ", 0
+    msg2    db "Enter second number: ", 0
+    msg3    db "Sum = ", 0
+    newline db 10, 0
+
+section .text
+    global _start
+
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg1
+    mov rdx, 20
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num1
+    mov rdx, 20
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg2
+    mov rdx, 21
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num2
+    mov rdx, 20
+    syscall
+
+    mov rsi, num1
+    call atoi
+    mov rbx, rax
+
+    mov rsi, num2
+    call atoi
+    add rax, rbx
+    mov rdi, result
+    call itoa
+    mov rsi, rdi
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg3
+    mov rdx, 6
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    call strlen
+    mov rdx, rax
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+atoi:
+    xor rax, rax
+    xor rcx, rcx
+.next:
+    movzx rdx, byte [rsi + rcx]
+    cmp rdx, 10
+    je .done
+    cmp rdx, 13
+    je .done
+    cmp rdx, 0
+    je .done
+    sub rdx, '0'
+    imul rax, rax, 10
+    add rax, rdx
+    inc rcx
+    jmp .next
+.done:
+    ret
+
+itoa:
+    mov rcx, 10
+    lea rbx, [rdi + 19]
+    mov byte [rbx], 0
+.convert:
+    xor rdx, rdx
+    div rcx
+    add dl, '0'
+    dec rbx
+    mov [rbx], dl
+    test rax, rax
+    jnz .convert
+    mov rsi, rbx
+.copy:
+    mov al, [rsi]
+    mov [rdi], al
+    inc rsi
+    inc rdi
+    test al, al
+    jnz .copy
+    ret
+
+strlen:
+    xor rax, rax
+.lenloop:
+    cmp byte [rsi + rax], 0
+    je .done
+    inc rax
+    jmp .lenloop
+.done:
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(1)">2. Subtraction</div>
+            <div class="code-section" id="code1">
+                <button class="copy-btn" onclick="copyCode(1, event)">Copy</button>
+                <pre>section .bss
+    num1   resb 20
+    num2   resb 20
+    result resb 20
+
+section .data
+    msg1    db "Enter first number: ", 0
+    msg2    db "Enter second number: ", 0
+    msg3    db "Difference = ", 0
+    newline db 10, 0
+
+section .text
+    global _start
+
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg1
+    mov rdx, 20
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num1
+    mov rdx, 20
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg2
+    mov rdx, 21
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num2
+    mov rdx, 20
+    syscall
+
+    mov rsi, num1
+    call atoi
+    mov rbx, rax
+
+    mov rsi, num2
+    call atoi
+    sub rbx, rax
+    mov rax, rbx
+
+    mov rdi, result
+    call itoa
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg3
+    mov rdx, 14
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    call strlen
+    mov rdx, rax
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+atoi:
+    xor rax, rax
+    xor rcx, rcx
+.next:
+    movzx rdx, byte [rsi + rcx]
+    cmp rdx, 10
+    je .done
+    cmp rdx, 13
+    je .done
+    cmp rdx, 0
+    je .done
+    sub rdx, '0'
+    imul rax, rax, 10
+    add rax, rdx
+    inc rcx
+    jmp .next
+.done:
+    ret
+
+itoa:
+    mov rcx, 10
+    lea rbx, [rdi + 19]
+    mov byte [rbx], 0
+.convert:
+    xor rdx, rdx
+    div rcx
+    add dl, '0'
+    dec rbx
+    mov [rbx], dl
+    test rax, rax
+    jnz .convert
+    mov rsi, rbx
+.copy:
+    mov al, [rsi]
+    mov [rdi], al
+    inc rsi
+    inc rdi
+    test al, al
+    jnz .copy
+    ret
+
+strlen:
+    xor rax, rax
+.lenloop:
+    cmp byte [rsi + rax], 0
+    je .done
+    inc rax
+    jmp .lenloop
+.done:
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(2)">3. Multiplication</div>
+            <div class="code-section" id="code2">
+                <button class="copy-btn" onclick="copyCode(2, event)">Copy</button>
+                <pre>section .bss
+    num1   resb 20
+    num2   resb 20
+    result resb 40
+
+section .data
+    msg1    db "Enter first number: ", 0
+    msg2    db "Enter second number: ", 0
+    msg3    db "Product = ", 0
+    newline db 10, 0
+
+section .text
+    global _start
+
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg1
+    mov rdx, 20
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num1
+    mov rdx, 20
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg2
+    mov rdx, 21
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num2
+    mov rdx, 20
+    syscall
+
+    mov rsi, num1
+    call atoi
+    mov rbx, rax
+
+    mov rsi, num2
+    call atoi
+    imul rbx, rax
+    mov rax, rbx
+
+    mov rdi, result
+    call itoa
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg3
+    mov rdx, 10
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    call strlen
+    mov rdx, rax
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+atoi:
+    xor rax, rax
+    xor rcx, rcx
+.next:
+    movzx rdx, byte [rsi + rcx]
+    cmp rdx, 10
+    je .done
+    cmp rdx, 13
+    je .done
+    cmp rdx, 0
+    je .done
+    sub rdx, '0'
+    imul rax, rax, 10
+    add rax, rdx
+    inc rcx
+    jmp .next
+.done:
+    ret
+
+itoa:
+    mov rcx, 10
+    lea rbx, [rdi + 39]
+    mov byte [rbx], 0
+.convert:
+    xor rdx, rdx
+    div rcx
+    add dl, '0'
+    dec rbx
+    mov [rbx], dl
+    test rax, rax
+    jnz .convert
+    mov rsi, rbx
+.copy:
+    mov al, [rsi]
+    mov [rdi], al
+    inc rsi
+    inc rdi
+    test al, al
+    jnz .copy
+    ret
+
+strlen:
+    xor rax, rax
+.lenloop:
+    cmp byte [rsi + rax], 0
+    je .done
+    inc rax
+    jmp .lenloop
+.done:
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(3)">4. Division</div>
+            <div class="code-section" id="code3">
+                <button class="copy-btn" onclick="copyCode(3, event)">Copy</button>
+                <pre>section .bss
+    num1   resb 20
+    num2   resb 20
+    result resb 40
+
+section .data
+    msg1    db "Enter first number: ", 0
+    msg2    db "Enter second number: ", 0
+    msg3    db "Product = ", 0
+    newline db 10, 0
+
+section .text
+    global _start
+
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg1
+    mov rdx, 20
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num1
+    mov rdx, 20
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg2
+    mov rdx, 21
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, num2
+    mov rdx, 20
+    syscall
+
+    mov rsi, num1
+    call atoi
+    mov rbx, rax
+
+    mov rsi, num2
+    call atoi
+    imul rbx, rax
+    mov rax, rbx
+
+    mov rdi, result
+    call itoa
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg3
+    mov rdx, 10
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    call strlen
+    mov rdx, rax
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, result
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+atoi:
+    xor rax, rax
+    xor rcx, rcx
+.next:
+    movzx rdx, byte [rsi + rcx]
+    cmp rdx, 10
+    je .done
+    cmp rdx, 13
+    je .done
+    cmp rdx, 0
+    je .done
+    sub rdx, '0'
+    imul rax, rax, 10
+    add rax, rdx
+    inc rcx
+    jmp .next
+.done:
+    ret
+
+itoa:
+    mov rcx, 10
+    lea rbx, [rdi + 39]
+    mov byte [rbx], 0
+.convert:
+    xor rdx, rdx
+    div rcx
+    add dl, '0'
+    dec rbx
+    mov [rbx], dl
+    test rax, rax
+    jnz .convert
+    mov rsi, rbx
+.copy:
+    mov al, [rsi]
+    mov [rdi], al
+    inc rsi
+    inc rdi
+    test al, al
+    jnz .copy
+    ret
+
+strlen:
+    xor rax, rax
+.lenloop:
+    cmp byte [rsi + rax], 0
+    je .done
+    inc rax
+    jmp .lenloop
+.done:
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(4)">5. Multiplication of two 64-bit hexadecimal numbers using
+                Successive addition</div>
+            <div class="code-section" id="code4"><button class="copy-btn" onclick="copyCode(4, event)">Copy</button>
+                <pre>%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+    msg1 db "Enter the first number: ",10
+    msg1_len equ $-msg1
+    msg2 db "Enter the second number: ",10
+    msg2_len equ $-msg2
+    msg3 db "Multiplication Result: ",10
+    msg3_len equ $-msg3
+
+section .bss
+    num     resb 17
+    buff    resb 16
+    ccnt    resq 1
+    no1     resq 1
+    no2     resq 1
+
+section .text
+    global _start
+_start:
+    write msg1, msg1_len
+    read num, 17
+    dec rax
+    mov [ccnt], rax
+    call accept
+    mov [no1], rbx
+
+    write msg2, msg2_len
+    read num, 17
+    dec rax
+    mov [ccnt], rax
+    call accept
+    mov [no2], rbx
+
+    mov rbx, 0
+
+multiply_loop:
+    add rbx, [no1]
+    dec qword [no2]
+    cmp qword [no2], 0
+    jne multiply_loop
+
+    write msg3, msg3_len
+    call disp
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+accept:
+    mov rbx, 0
+    mov rsi, num
+up1:
+    shl rbx, 4
+    mov dl, [rsi]
+    cmp dl, 39h
+    jbe sub_30
+    sub dl, 7
+sub_30:
+    sub dl, 30h
+    add rbx, rdx
+    inc rsi
+    dec qword [ccnt]
+    jnz up1
+    ret
+
+disp:
+    mov rsi, buff
+    mov rcx, 16
+up2:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe mc
+    add dl, 7
+mc:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    dec rcx
+    jnz up2
+    write buff, 16
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(5)">6. Multiplication using Add and shift method</div>
+            <div class="code-section" id="code5"><button class="copy-btn" onclick="copyCode(5, event)">Copy</button>
+                <pre>%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+    msg1 db "Enter the multiplicand: ",10
+    msg1_len equ $-msg1
+    msg2 db "Enter the multiplier: ",10
+    msg2_len equ $-msg2
+    msg3 db "Product Result (A then Q):",10
+    msg3_len equ $-msg3
+
+section .bss
+    num     resb 17
+    buff    resb 16
+    ccnt    resq 1
+    A       resq 1
+    B       resq 1
+    Q       resq 1
+    n       resq 1
+
+section .text
+    global _start
+
+_start:
+    write msg1, msg1_len
+    read num, 17
+    dec rax
+    mov [ccnt], rax
+    call accept
+    mov [B], rbx
+
+    write msg2, msg2_len
+    read num, 17
+    dec rax
+    mov [ccnt], rax
+    call accept
+    mov [Q], rbx
+
+    mov qword [A], 0
+    mov qword [n], 64
+
+mul_loop:
+    mov rax, [Q]
+    and rax, 1
+    cmp rax, 1
+    jne shift_step
+
+    mov rax, [A]
+    mov rbx, [B]
+    add rax, rbx
+    mov [A], rax
+
+shift_step:
+    mov rax, [A]
+    mov rbx, [Q]
+    shr rbx, 1
+    and rax, 1
+    cmp rax, 1
+    jne shift_a
+    mov rdx, 1
+    ror rdx, 1
+    or  rbx, rdx
+shift_a:
+    mov rax, [A]
+    shr rax, 1
+    mov [A], rax
+    mov [Q], rbx
+
+    dec qword [n]
+    jnz mul_loop
+
+    write msg3, msg3_len
+    mov rbx, [A]
+    call disp
+    mov rbx, [Q]
+    call disp
+
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+accept:
+    mov rbx, 0
+    mov rsi, num
+up1:
+    shl rbx, 4
+    mov dl, [rsi]
+    cmp dl, 39h
+    jbe sub_30
+    sub dl, 7
+sub_30:
+    sub dl, 30h
+    add rbx, rdx
+    inc rsi
+    dec qword [ccnt]
+    jnz up1
+    ret
+
+disp:
+    mov rsi, buff
+    mov rcx, 16
+up2:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe mc
+    add dl, 7
+mc:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    dec rcx
+    jnz up2
+    write buff, 16
+    ret</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(6)">7. String operations</div>
+            <div class="code-section" id="code6"><button class="copy-btn" onclick="copyCode(6, event)">Copy</button>
+                <pre>See problems_5_8.html for full code</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(7)">8. Quadratic equation</div>
+            <div class="code-section" id="code7"><button class="copy-btn" onclick="copyCode(7, event)">Copy</button>
+                <pre>See problems_5_8.html for full code</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(8)">9. String length</div>
+            <div class="code-section" id="code8"><button class="copy-btn" onclick="copyCode(8, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Length of string: ",10
+len2 equ $ - msg2
+
+section .bss
+string resb 40
+strlen_val resq 1
+buff resb 16
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read string, 40
+    dec rax
+    mov [strlen_val], rax
+
+    write msg2, len2
+    mov rbx, [strlen_val]
+    call display
+    call exit
+
+display:
+    mov rsi, buff
+    mov rcx, 16
+disp_loop:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe add30
+    add dl, 7
+add30:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    loop disp_loop
+    write buff, 16
+    ret
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(9)">10. String Copy</div>
+            <div class="code-section" id="code9"><button class="copy-btn" onclick="copyCode(9, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Copied string:",10
+len2 equ $ - msg2
+
+section .bss
+src resb 40
+dest resb 40
+len resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read src, 40
+    dec rax
+    mov [len], rax
+
+    mov rsi, src
+    mov rdi, dest
+    mov rcx, [len]
+    cld
+    rep movsb
+
+    write msg2, len2
+    write dest, [len]
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(10)">11. String Concatenation</div>
+            <div class="code-section" id="code10"><button class="copy-btn" onclick="copyCode(10, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter String 1:",10
+len1 equ $ - msg1
+msg2 db "Enter String 2:",10
+len2 equ $ - msg2
+msg3 db "Concatenated string:",10
+len3 equ $ - msg3
+
+section .bss
+s1 resb 40
+s2 resb 40
+dest resb 80
+l1 resq 1
+l2 resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read s1, 40
+    dec rax
+    mov [l1], rax
+
+    write msg2, len2
+    read s2, 40
+    dec rax
+    mov [l2], rax
+
+    mov rsi, s1
+    mov rdi, dest
+    mov rcx, [l1]
+    cld
+    rep movsb
+
+    mov rsi, s2
+    mov rcx, [l2]
+    rep movsb
+
+    mov rbx, [l1]
+    add rbx, [l2]
+
+    write msg3, len3
+    write dest, rbx
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(11)">12. String comparison</div>
+            <div class="code-section" id="code11"><button class="copy-btn" onclick="copyCode(11, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter String 1:",10
+len1 equ $ - msg1
+msg2 db "Enter String 2:",10
+len2 equ $ - msg2
+eqmsg db "Strings are equal",10
+neqmsg db "Strings are not equal",10
+len_eq equ $ - eqmsg
+len_neq equ $ - neqmsg
+
+section .bss
+s1 resb 40
+s2 resb 40
+l1 resq 1
+l2 resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read s1, 40
+    dec rax
+    mov [l1], rax
+
+    write msg2, len2
+    read s2, 40
+    dec rax
+    mov [l2], rax
+
+    mov rbx, [l1]
+    cmp rbx, [l2]
+    jne not_equal
+
+    mov rsi, s1
+    mov rdi, s2
+    mov rcx, [l1]
+    cld
+    repe cmpsb
+    jne not_equal
+
+    write eqmsg, len_eq
+    jmp exit
+
+not_equal:
+    write neqmsg, len_neq
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(12)">13. String reverse</div>
+            <div class="code-section" id="code12"><button class="copy-btn" onclick="copyCode(12, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Reversed string:",10
+len2 equ $ - msg2
+
+section .bss
+src resb 40
+dest resb 40
+len resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read src, 40
+    dec rax
+    mov [len], rax
+
+    mov rsi, src
+    add rsi, [len]
+    dec rsi
+    mov rdi, dest
+    mov rcx, [len]
+
+rev_loop:
+    mov al, [rsi]
+    mov [rdi], al
+    dec rsi
+    inc rdi
+    loop rev_loop
+
+    write msg2, len2
+    write dest, [len]
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(13)">14. String Palindrome</div>
+            <div class="code-section" id="code13"><button class="copy-btn" onclick="copyCode(13, event)">Copy</button>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "String is palindrome",10
+len2 equ $ - msg2
+msg3 db "String is not palindrome",10
+len3 equ $ - msg3
+
+section .bss
+string resb 40
+reversed resb 40
+len resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read string, 40
+    dec rax
+    mov [len], rax
+
+    mov rsi, string
+    add rsi, [len]
+    dec rsi
+    mov rdi, reversed
+    mov rcx, [len]
+
+rev_loop:
+    mov al, [rsi]
+    mov [rdi], al
+    dec rsi
+    inc rdi
+    loop rev_loop
+
+    mov rsi, string
+    mov rdi, reversed
+    mov rcx, [len]
+    cld
+    repe cmpsb
+    jne not_pal
+
+    write msg2, len2
+    jmp exit
+
+not_pal:
+    write msg3, len3
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggle(id) {
+            const code = document.getElementById('code' + id);
+            code.classList.toggle('active');
+        }
+
+        function copyCode(id, event) {
+            event.stopPropagation();
+            const codeSection = document.getElementById('code' + id);
+            const code = codeSection.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

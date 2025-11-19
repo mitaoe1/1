@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COA Problems 9-14</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 30px; text-align: center; }
+        .problem { margin-bottom: 40px; border: 1px solid #e0e0e0; border-radius: 5px; overflow: hidden; }
+        .problem-header { background: #3498db; color: white; padding: 15px 20px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
+        .problem-header:hover { background: #2980b9; }
+        .code-section { background: #2d2d2d; color: #f8f8f2; padding: 20px; overflow-x: auto; display: none; }
+        .code-section.active { display: block; }
+        pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>COA Problems 9-14</h1>
+        
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(0)">9. String length</div>
+            <div class="code-section" id="code0">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Length of string: ",10
+len2 equ $ - msg2
+
+section .bss
+string resb 40
+strlen_val resq 1
+buff resb 16
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read string, 40
+    dec rax
+    mov [strlen_val], rax
+
+    write msg2, len2
+    mov rbx, [strlen_val]
+    call display
+    call exit
+
+display:
+    mov rsi, buff
+    mov rcx, 16
+disp_loop:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe add30
+    add dl, 7
+add30:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    loop disp_loop
+    write buff, 16
+    ret
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(1)">10. String Copy</div>
+            <div class="code-section" id="code1">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Copied string:",10
+len2 equ $ - msg2
+
+section .bss
+src resb 40
+dest resb 40
+len resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read src, 40
+    dec rax
+    mov [len], rax
+
+    mov rsi, src
+    mov rdi, dest
+    mov rcx, [len]
+    cld
+    rep movsb
+
+    write msg2, len2
+    write dest, [len]
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(2)">11. String Concatenation</div>
+            <div class="code-section" id="code2">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter String 1:",10
+len1 equ $ - msg1
+msg2 db "Enter String 2:",10
+len2 equ $ - msg2
+msg3 db "Concatenated string:",10
+len3 equ $ - msg3
+
+section .bss
+s1 resb 40
+s2 resb 40
+dest resb 80
+l1 resq 1
+l2 resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read s1, 40
+    dec rax
+    mov [l1], rax
+
+    write msg2, len2
+    read s2, 40
+    dec rax
+    mov [l2], rax
+
+    mov rsi, s1
+    mov rdi, dest
+    mov rcx, [l1]
+    cld
+    rep movsb
+
+    mov rsi, s2
+    mov rcx, [l2]
+    rep movsb
+
+    mov rbx, [l1]
+    add rbx, [l2]
+
+    write msg3, len3
+    write dest, rbx
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(3)">12. String comparison</div>
+            <div class="code-section" id="code3">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter String 1:",10
+len1 equ $ - msg1
+msg2 db "Enter String 2:",10
+len2 equ $ - msg2
+eqmsg db "Strings are equal",10
+neqmsg db "Strings are not equal",10
+len_eq equ $ - eqmsg
+len_neq equ $ - neqmsg
+
+section .bss
+s1 resb 40
+s2 resb 40
+l1 resq 1
+l2 resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read s1, 40
+    dec rax
+    mov [l1], rax
+
+    write msg2, len2
+    read s2, 40
+    dec rax
+    mov [l2], rax
+
+    mov rbx, [l1]
+    cmp rbx, [l2]
+    jne not_equal
+
+    mov rsi, s1
+    mov rdi, s2
+    mov rcx, [l1]
+    cld
+    repe cmpsb
+    jne not_equal
+
+    write eqmsg, len_eq
+    jmp exit
+
+not_equal:
+    write neqmsg, len_neq
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(4)">13. String reverse</div>
+            <div class="code-section" id="code4">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Reversed string:",10
+len2 equ $ - msg2
+
+section .bss
+src resb 40
+dest resb 40
+len resq 1
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read src, 40
+    dec rax
+    mov [len], rax
+
+    mov rsi, src
+    add rsi, [len]
+    dec rsi
+    mov rdi, dest
+    mov rcx, [len]
+
+rev_loop:
+    mov al, [rsi]
+    mov [rdi], al
+    dec rsi
+    inc rdi
+    loop rev_loop
+
+    write msg2, len2
+    write dest, [len]
+    call exit
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-header" onclick="toggle(5)">14. String Palindrome</div>
+            <div class="code-section" id="code5">
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+msg1 db "Enter a string:",10
+len1 equ $ - msg1
+msg2 db "Length of string: ",10
+len2 equ $ - msg2
+
+section .bss
+string resb 40
+strlen_val resq 1
+buff resb 16
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read string, 40
+    dec rax
+    mov [strlen_val], rax
+
+    write msg2, len2
+    mov rbx, [strlen_val]
+    call display
+    call exit
+
+display:
+    mov rsi, buff
+    mov rcx, 16
+disp_loop:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe add30
+    add dl, 7
+add30:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    loop disp_loop
+    write buff, 16
+    ret
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggle(id) {
+            const code = document.getElementById('code' + id);
+            code.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
