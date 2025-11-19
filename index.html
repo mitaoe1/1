@@ -877,14 +877,454 @@ mc:
         <div class="problem">
             <div class="problem-header" onclick="toggle(6)">7. String operations</div>
             <div class="code-section" id="code6"><button class="copy-btn" onclick="copyCode(6, event)">Copy</button>
-                <pre>See problems_5_8.html for full code</pre>
+                <pre>%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+Menumsg db 10, "1. String length",10
+        db "2. String copy",10
+        db "3. String reverse",10
+        db "4. String compare",10
+        db "5. String concat",10
+        db "6. Check palindrome",10
+        db "7. String substring",10
+        db "8. Exit",10
+        db "Enter your choice (1-8): ",10
+Menulen equ $ - Menumsg
+
+msg1 db "Enter String1:",10
+len1 equ $ - msg1
+
+msg2 db "Enter String2:",10
+len2 equ $ - msg2
+
+msg3 db "The length of string: ",10
+len3 equ $ - msg3
+
+msg4 db "The copied string:",10
+len4 equ $ - msg4
+
+msg5 db "The reversed string:",10
+len5 equ $ - msg5
+
+msg6 db "Strings are equal",10
+len6 equ $ - msg6
+
+msg7 db "Strings are not equal",10
+len7 equ $ - msg7
+
+msg8 db "The concatenated string:",10
+len8 equ $ - msg8
+
+msg9 db "String is palindrome",10
+len9 equ $ - msg9
+
+msg10 db "String is not palindrome",10
+len10 equ $ - msg10
+
+msg11 db "Substring found",10
+len11 equ $ - msg11
+
+msg12 db "Not a substring",10
+len12 equ $ - msg12
+
+msg13 db "Wrong choice",10
+len13 equ $ - msg13
+
+section .bss
+string1 resb 40
+string2 resb 40
+string3 resb 80
+l1      resq 1
+l2      resq 1
+l3      resq 1
+choice  resb 2
+buff    resb 16
+
+section .text
+global _start
+
+_start:
+    write msg1, len1
+    read string1, 40
+    dec rax
+    mov [l1], rax
+
+    write msg2, len2
+    read string2, 40
+    dec rax
+    mov [l2], rax
+
+printmenu:
+    write Menumsg, Menulen
+    read choice, 2
+
+    cmp byte [choice], '1'
+    je strlen
+    cmp byte [choice], '2'
+    je strcpy
+    cmp byte [choice], '3'
+    je strrev
+    cmp byte [choice], '4'
+    je strcmp
+    cmp byte [choice], '5'
+    je strcat
+    cmp byte [choice], '6'
+    je strpalindrome
+    cmp byte [choice], '7'
+    je strsub
+    cmp byte [choice], '8'
+    je exit
+
+    write msg13, len13
+    jmp printmenu
+
+strlen:
+    write msg3, len3
+    mov rbx, [l1]
+    call display
+    jmp printmenu
+
+strcpy:
+    mov rsi, string1
+    mov rdi, string3
+    mov rcx, [l1]
+    cld
+    rep movsb
+    write msg4, len4
+    write string3, [l1]
+    jmp printmenu
+
+strrev:
+    mov rsi, string1
+    add rsi, [l1]
+    dec rsi
+    mov rdi, string3
+    mov rcx, [l1]
+rev_loop:
+    mov bl, [rsi]
+    mov [rdi], bl
+    dec rsi
+    inc rdi
+    loop rev_loop
+    write msg5, len5
+    write string3, [l1]
+    jmp printmenu
+
+strcmp:
+    mov rbx, [l1]
+    cmp rbx, [l2]
+    jne nonequal
+    mov rsi, string1
+    mov rdi, string2
+    mov rcx, [l1]
+    cld
+    repe cmpsb
+    jne nonequal
+    write msg6, len6
+    jmp printmenu
+nonequal:
+    write msg7, len7
+    jmp printmenu
+
+strcat:
+    mov rsi, string1
+    mov rdi, string3
+    mov rcx, [l1]
+    cld
+    rep movsb
+    mov rsi, string2
+    mov rcx, [l2]
+    rep movsb
+    mov rbx, [l1]
+    add rbx, [l2]
+    mov [l3], rbx
+    write msg8, len8
+    write string3, [l3]
+    jmp printmenu
+
+strpalindrome:
+    mov rsi, string1
+    add rsi, [l1]
+    dec rsi
+    mov rdi, string3
+    mov rcx, [l1]
+pal_loop:
+    mov dl, [rsi]
+    mov [rdi], dl
+    dec rsi
+    inc rdi
+    loop pal_loop
+    mov rsi, string1
+    mov rdi, string3
+    mov rcx, [l1]
+    cld
+    repe cmpsb
+    jne notpal
+    write msg9, len9
+    jmp printmenu
+notpal:
+    write msg10, len10
+    jmp printmenu
+
+strsub:
+    mov rbx, [l1]
+    mov rcx, [l2]
+    mov rsi, string1
+outer:
+    mov rdi, string2
+    mov rdx, rcx
+inner:
+    mov al, [rsi]
+    mov bl, [rdi]
+    cmp al, bl
+    jne notmatch
+    inc rsi
+    inc rdi
+    dec rdx
+    jz found
+    jmp inner
+notmatch:
+    inc rsi
+    dec rbx
+    jnz outer
+    write msg12, len12
+    jmp printmenu
+found:
+    write msg11, len11
+    jmp printmenu
+
+exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+display:
+    mov rsi, buff
+    mov rcx, 16
+disp_loop:
+    rol rbx, 4
+    mov dl, bl
+    and dl, 0Fh
+    cmp dl, 9
+    jbe add30
+    add dl, 7
+add30:
+    add dl, 30h
+    mov [rsi], dl
+    inc rsi
+    loop disp_loop
+    write buff, 16
+    ret</pre>
             </div>
         </div>
 
         <div class="problem">
             <div class="problem-header" onclick="toggle(7)">8. Quadratic equation</div>
             <div class="code-section" id="code7"><button class="copy-btn" onclick="copyCode(7, event)">Copy</button>
-                <pre>See problems_5_8.html for full code</pre>
+                <pre>%macro write 2
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+%macro read 2
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, %1
+    mov rdx, %2
+    syscall
+%endmacro
+
+section .data
+    msg_a     db "Enter coefficient a: ", 0
+    msg_a_len equ $ - msg_a
+    msg_b     db "Enter coefficient b: ", 0
+    msg_b_len equ $ - msg_b
+    msg_c     db "Enter coefficient c: ", 0
+    msg_c_len equ $ - msg_c
+
+    msg_r1    db "Root 1: ", 0
+    msg_r1_len equ $ - msg_r1
+    msg_r2    db "Root 2: ", 0
+    msg_r2_len equ $ - msg_r2
+    msg_equal db "Equal root: ", 0
+    msg_equal_len equ $ - msg_equal
+    msg_imag  db "Imaginary roots", 10, 0
+    msg_imag_len equ $ - msg_imag
+
+    newline   db 10
+    newline_len equ $ - newline
+
+section .bss
+    a       resq 1
+    b       resq 1
+    c       resq 1
+    D       resq 1
+    sqrtD   resq 1
+    root1   resq 1
+    root2   resq 1
+    buf     resb 64
+
+section .text
+global _start
+_start:
+
+    write msg_a, msg_a_len
+    read buf, 64
+    mov rsi, buf
+    call str2int
+    mov [a], rax
+
+    write msg_b, msg_b_len
+    read buf, 64
+    mov rsi, buf
+    call str2int
+    mov [b], rax
+
+    write msg_c, msg_c_len
+    read buf, 64
+    mov rsi, buf
+    call str2int
+    mov [c], rax
+
+    mov rax, [b]
+    imul rax, rax
+    mov rcx, rax
+
+    mov rax, [a]
+    imul rax, [c]
+    shl rax, 2
+    sub rcx, rax
+    mov [D], rcx
+
+    cmp rcx, 0
+    jl .imaginary
+    je .equal
+
+    mov rax, [D]
+    call int_sqrt
+    mov [sqrtD], rax
+
+    mov rax, [b]
+    neg rax
+    sub rax, [sqrtD]
+    mov rbx, [a]
+    shl rbx, 1
+    cqo
+    idiv rbx
+    mov [root1], rax
+
+    mov rax, [b]
+    neg rax
+    add rax, [sqrtD]
+    mov rbx, [a]
+    shl rbx, 1
+    cqo
+    idiv rbx
+    mov [root2], rax
+
+    write msg_r1, msg_r1_len
+    mov rax, [root1]
+    call int2str
+    write rsi, rdx
+    write newline, newline_len
+
+    write msg_r2, msg_r2_len
+    mov rax, [root2]
+    call int2str
+    write rsi, rdx
+    write newline, newline_len
+
+    jmp .exit
+
+.equal:
+    mov rax, [b]
+    neg rax
+    mov rbx, [a]
+    shl rbx, 1
+    cqo
+    idiv rbx
+    mov [root1], rax
+
+    write msg_equal, msg_equal_len
+    mov rax, [root1]
+    call int2str
+    write rsi, rdx
+    write newline, newline_len
+    jmp .exit
+
+.imaginary:
+    write msg_imag, msg_imag_len
+
+.exit:
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+int_sqrt:
+    cmp rax, 0
+    jle .done_sqrt
+    mov rcx, rax
+    xor rbx, rbx
+.sqrt_loop:
+    mov rdx, rbx
+    imul rdx, rbx
+    cmp rdx, rcx
+    ja .found
+    inc rbx
+    jmp .sqrt_loop
+.found:
+    dec rbx
+    mov rax, rbx
+.done_sqrt:
+    ret
+
+str2int:
+    xor rax, rax
+    xor rcx, rcx
+    xor r8b, r8b
+
+    mov bl, [rsi]
+    cmp bl, '-'
+    jne .parse
+    mov r8b, 1
+    inc rsi
+
+.parse:
+    mov bl, [rsi]
+    cmp bl, 10
+    je .done
+    cmp bl, 0
+    je .done
+    sub bl, '0'
+    movzx rcx, bl
+    imul rax, rax, 10
+    add rax, rcx
+    inc rsi
+    jmp .parse
+
+.done:
+    cmp r8b, 1
+    jne .ret
+    neg rax
+.ret:
+    ret</pre>
             </div>
         </div>
 
